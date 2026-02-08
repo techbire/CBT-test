@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IMU CET Mock Test 1 - Full CBT</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        :root { --primary: #007bff; --secondary: #6c757d; --success: #28a745; --warning: #ffc107; --danger: #dc3545; --light: #f8f9fa; --dark: #343a40; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f4f6f9; height: 100vh; display: flex; flex-direction: column; }
+        header { background-color: var(--primary); color: white; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; height: 50px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .timer-box { background: rgba(255,255,255,0.2); padding: 5px 15px; border-radius: 4px; font-weight: bold; font-size: 1.2rem; }
+        .container { display: flex; flex: 1; overflow: hidden; }
+        .question-area { flex: 3; padding: 20px; overflow-y: auto; background: white; display: flex; flex-direction: column; }
+        .question-header { display: flex; justify-content: space-between; border-bottom: 1px solid #ddd; padding-bottom: 10px; margin-bottom: 20px; font-weight: bold; color: var(--secondary); }
+        .question-text { font-size: 1.2rem; margin-bottom: 25px; line-height: 1.6; }
+        .options-grid { display: flex; flex-direction: column; gap: 15px; }
+        .option-label { display: flex; align-items: center; padding: 10px 15px; border: 1px solid #ced4da; border-radius: 5px; cursor: pointer; transition: all 0.2s; }
+        .option-label:hover { background-color: var(--light); }
+        .option-label input { margin-right: 15px; transform: scale(1.2); }
+        .sidebar { flex: 1; background-color: #e9ecef; border-left: 1px solid #ced4da; display: flex; flex-direction: column; max-width: 350px; }
+        .user-info { padding: 15px; background: white; border-bottom: 1px solid #ddd; display: flex; align-items: center; gap: 10px; }
+        .legend { padding: 10px; font-size: 0.8rem; display: grid; grid-template-columns: 1fr 1fr; gap: 5px; background: white; border-bottom: 1px solid #ddd; }
+        .legend-item { display: flex; align-items: center; gap: 5px; }
+        .palette-grid { padding: 15px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; overflow-y: auto; flex: 1; }
+        .palette-btn { width: 35px; height: 35px; border: 1px solid #ccc; border-radius: 50%; background: white; cursor: pointer; font-weight: bold; display: flex; justify-content: center; align-items: center; font-size: 0.9rem; }
+        .palette-btn.active { border: 2px solid var(--primary); }
+        .palette-btn.answered { background-color: var(--success); color: white; border-color: var(--success); }
+        .palette-btn.visited { background-color: var(--danger); color: white; border-color: var(--danger); }
+        .footer { padding: 15px 20px; background: white; border-top: 1px solid #ddd; display: flex; justify-content: space-between; }
+        .btn { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; color: white; transition: opacity 0.2s; }
+        .btn:hover { opacity: 0.9; }
+        .btn-primary { background-color: var(--primary); }
+        .btn-success { background-color: var(--success); }
+        .btn-warning { background-color: var(--warning); color: black; }
+        .btn-secondary { background-color: var(--secondary); }
+        .section-tabs { display: flex; background: #fff; border-bottom: 1px solid #ddd; overflow-x: auto; }
+        .tab-btn { padding: 10px 20px; border: none; background: none; cursor: pointer; font-weight: bold; color: var(--secondary); border-bottom: 3px solid transparent; white-space: nowrap; }
+        .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background: white; padding: 30px; border-radius: 8px; width: 80%; max-width: 600px; max-height: 80vh; overflow-y: auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: var(--light); }
+    </style>
+</head>
+<body>
+
+<header>
+    <div style="font-size: 1.4rem;">IMU CET MOCK TEST - 1</div>
+    <div class="timer-box" id="timer">03:00:00</div>
+</header>
+
+<div class="section-tabs" id="sectionTabs"></div>
+
+<div class="container">
+    <div class="question-area">
+        <div class="question-header">
+            <span id="q-section">Mathematics</span>
+            <span id="q-marks">Marks: 1</span>
+        </div>
+        <div class="question-text" id="q-text"></div>
+        <div class="options-grid" id="q-options"></div>
+    </div>
+
+    <div class="sidebar">
+        <div class="user-info">
+            <div style="width: 40px; height: 40px; background: #ddd; border-radius: 50%;"></div>
+            <div><strong>Candidate</strong><br><span style="font-size:0.8rem; color:green;">Online</span></div>
+        </div>
+        <div class="legend">
+            <div class="legend-item"><div class="palette-btn answered" style="width:20px;height:20px;"></div> Answered</div>
+            <div class="legend-item"><div class="palette-btn visited" style="width:20px;height:20px;"></div> Visited</div>
+            <div class="legend-item"><div class="palette-btn" style="width:20px;height:20px;"></div> Unvisited</div>
+        </div>
+        <div class="palette-grid" id="palette"></div>
+        <div style="padding: 15px; text-align: center;">
+            <button class="btn btn-success" style="width: 100%;" onclick="finishTest()">SUBMIT TEST</button>
+        </div>
+    </div>
+</div>
+
+<div class="footer">
+    <div>
+        <button class="btn btn-secondary" onclick="prevQuestion()">Previous</button>
+        <button class="btn btn-warning" onclick="clearResponse()">Clear</button>
+    </div>
+    <button class="btn btn-primary" onclick="saveAndNext()">Save & Next</button>
+</div>
+
+<div class="modal" id="resultModal">
+    <div class="modal-content">
+        <h2>Test Summary</h2>
+        <div id="score-summary"></div>
+        <h3>Detailed Analysis</h3>
+        <div id="detailed-analysis"></div>
+        <button class="btn btn-primary" onclick="location.reload()" style="margin-top: 20px;">Close</button>
+    </div>
+</div>
+
+<script>
+    const questions = [
+        // --- MATHEMATICS (Q1-Q50) ---
+        { id: 1, section: "Mathematics", text: "The binary relation \\(S = \\emptyset\\) (empty set) on set \\(A=\\{1,2,3\\}\\) is:", options: ["transitive and reflexive", "symmetric and reflexive", "transitive and symmetric", "neither reflexive nor symmetric"], correct: 2 },
+        { id: 2, section: "Mathematics", text: "A bag contains 2 white balls, 3 black balls and 4 red balls. In how many ways can 3 balls be drawn from the bag, if at least one black ball is to be included in the draw?", options: ["64", "128", "132", "222"], correct: 0 },
+        { id: 3, section: "Mathematics", text: "Two trains of equal length are running on parallel lines in the same direction at 46 km/hr and 36 km/hr. The faster train passes the slower train in 36 seconds. The length of each train is:", options: ["50 m", "72 m", "80 m", "82 m"], correct: 0 },
+        { id: 4, section: "Mathematics", text: "Consider a right angle triangle XYZ, \\(XY=a\\), \\(YZ=b\\), \\(XZ=25.6\\) and angle of X is \\(37^{\\circ}\\), then values of a and b respectively are:", options: ["19.604, 40.045", "18.604, 42.025", "17.406, 21.455", "15.406, 20.445"], correct: 3 },
+        { id: 5, section: "Mathematics", text: "A train 360 m long is running at a speed of 45 km/hr. In what time will it pass a bridge 140 m long?", options: ["40 sec", "42 sec", "45 sec", "48 sec"], correct: 0 },
+        { id: 6, section: "Mathematics", text: "A TV is purchased at Rs. 5000 and sold at Rs. 4000, find the lost percent.", options: ["10%", "20%", "25%", "28%"], correct: 1 },
+        { id: 7, section: "Mathematics", text: "If A and B are matrices, then which from the following is true?", options: ["\\(A+B \\ne B+A\\)", "\\((A^{T})^{T} \\ne A\\)", "\\(AB \\ne BA\\)", "all are true"], correct: 2 },
+        { id: 8, section: "Mathematics", text: "Sum of \\(\\cos 45^{\\circ}\\) and \\(\\tan 38^{\\circ}\\) is:", options: ["0.4884", "2.8484", "1.4884", "3.4884"], correct: 2 },
+        { id: 9, section: "Mathematics", text: "\\(X^{2}+4x+4\\) is:", options: ["polynomial", "equation", "identity", "None of Above"], correct: 0 },
+        { id: 10, section: "Mathematics", text: "What is the sum of the sequence: 10, 20, 30, ...., 1000?", options: ["50,000", "50,250", "50,500", "50,750"], correct: 2 },
+        { id: 11, section: "Mathematics", text: "\\(\\pi\\) (pi) denotes the ratio of the ____ to the ____:", options: ["area of a circle, circumference of the circle", "area of a circle, length of its diameter", "circumference of a circle, length of its radius", "circumference of a circle, length of its diameter"], correct: 3 },
+        { id: 12, section: "Mathematics", text: "Besides 1, which of the following number is both squares and triangular number?", options: ["25", "10", "36", "80"], correct: 2 },
+        { id: 13, section: "Mathematics", text: "The function \\(f(x)=x+1\\) from the set of integers to itself is onto. Is it True or False?", options: ["True", "False"], correct: 0 },
+        { id: 14, section: "Mathematics", text: "How many cubes of 10 cm edge can be put in a cubical box of 1 m edge?", options: ["10000 cubes", "1000 cubes", "100 cubes", "50 cubes"], correct: 1 },
+        { id: 15, section: "Mathematics", text: "Let \\(A=\\{1,2,3\\}\\) and let \\(R=\\{(1,1), (2, 2), (3, 3), (1, 3), (3, 2), (1, 2)\\}\\). Then R is:", options: ["reflexive and symmetric but not transitive", "reflexive and transitive but not symmetric", "symmetric and transitive but not reflexive", "an equivalence relation"], correct: 1 },
+        { id: 16, section: "Mathematics", text: "The inverse of function \\(f(x)=x^{2}+2\\) is:", options: ["\\(f^{-1}(y)=(y-2)^{1/2}\\)", "\\(f^{-1}(y)=(y-2)\\)", "\\(f^{-1}(y)=y^2\\)", "None"], correct: 0 },
+        { id: 17, section: "Mathematics", text: "Which of the following property of matrix multiplication is correct:", options: ["Multiplication is not commutative in general", "Multiplication is associative", "Multiplication is distributive over addition", "All of the mentioned"], correct: 3 },
+        { id: 18, section: "Mathematics", text: "Out of 7 consonants and 4 vowels, how many words of 3 consonants and 2 vowels can be formed?", options: ["24400", "21300", "210", "25200"], correct: 3 },
+        { id: 19, section: "Mathematics", text: "The sum of the first 16 terms of an AP whose first term and third term are 5 and 15 respectively is:", options: ["600", "765", "640", "680"], correct: 2 },
+        { id: 20, section: "Mathematics", text: "If \\(a*b=2a-3b+ab\\), then \\(3*5+5*3\\) is equal to:", options: ["22", "24", "26", "28"], correct: 3 },
+        { id: 21, section: "Mathematics", text: "In three dimensional coordinate systems, coordinates are:", options: ["perpendicular to each other", "parallel to each other", "same direction for each other", "opposite direction for each other"], correct: 0 },
+        { id: 22, section: "Mathematics", text: "The sum of the first 16 terms of an AP whose first term and third term are 5 and 15 respectively is.", options: ["600", "765", "640", "680"], correct: 3 },
+        { id: 23, section: "Mathematics", text: "In triangle ABC, if angle \\(B=60^{\\circ}\\) \\(b=11\\) cm and \\(c=8.7\\) cm then angle A and length of 'a' is", options: ["52°, 15.7", "43.23°", "46°", "49°"], correct: 0 },
+        { id: 24, section: "Mathematics", text: "The mean of the numbers a, b, 8, 5, 10 is 6 and the variance is 6.80. Then which one of the following gives possible values a and b?", options: ["a=1, b=6", "a=3, b=4", "a=0, b=7", "a=5, b=2"], correct: 1 },
+        { id: 25, section: "Mathematics", text: "The \\(g^{-1}(\\{0\\})\\) for the function \\(g(x)=x!\\).", options: ["\\( \\{x|0<x<1\\} \\)", "Empty Set", "Zero", "1"], correct: 2 },
+        { id: 26, section: "Mathematics", text: "A.P whose nth term is 2n-1 is:", options: ["1,3,6...", "2,3,5...", "1,3,5...", "5,3,1..."], correct: 2 },
+        { id: 27, section: "Mathematics", text: "Real part of \\(2ab(1+i)^{2}\\) is:", options: ["2ab", "-2ab", "0", "4ab"], correct: 2 },
+        { id: 28, section: "Mathematics", text: "Quadratic equation whose roots are \\(\\alpha, \\beta\\) is:", options: ["\\(x^{2}+(\\alpha+\\beta)x+\\alpha\\beta=0\\)", "\\(x^{2}-(\\alpha+\\beta)x-\\alpha\\beta=0\\)", "\\(x^{2}+(\\alpha+\\beta)x-\\alpha\\beta=0\\)", "\\(x^{2}-(\\alpha+\\beta)x+\\alpha\\beta=0\\)"], correct: 3 },
+        { id: 29, section: "Mathematics", text: "The salaries of A, B and C are of ratio 2:3:5. If the increments of 15%, 10% and 20% are done to their respective salaries, then find the new ratio of their salaries.", options: ["20:33:60", "21:33:60", "22:33:60", "23:33:60"], correct: 3 },
+        { id: 30, section: "Mathematics", text: "A speaks truth in 75% of cases and B in 80% of cases. In what percentage of cases are they likely to contradict each other, narrating the same incident?", options: ["30%", "35%", "40%", "45%"], correct: 1 },
+        { id: 31, section: "Mathematics", text: "If \\(A=\\{1,3,5,B\\}\\) and \\(B=\\{2,4\\}\\) then:", options: ["\\(4 \\in A\\)", "\\(\\{4\\} \\subset A\\)", "\\(B \\subset A\\)", "None of these"], correct: 3 },
+        { id: 32, section: "Mathematics", text: "The area bounded by the curve \\(y=x^{2}+2x+1\\) the tangent at (1, 4) and the y-axis is:", options: ["1", "1/2", "1/3", "1/4"], correct: 2 },
+        { id: 33, section: "Mathematics", text: "A sum of Rs 12,500 amounts to Rs. 15,500 in the 4 years at the rate of simple interest. Find the rate percent.", options: ["6%", "7%", "8%", "9%"], correct: 0 },
+        { id: 34, section: "Mathematics", text: "Let A and B be two sets in the same universal set. Then \\(A-B=\\)", options: ["\\(A \\cap B\\)", "\\(A' \\cap B\\)", "\\(A \\cap B'\\)", "None"], correct: 2 },
+        { id: 35, section: "Mathematics", text: "In function \\(y=f(x)\\), 'y' is classified as:", options: ["dependent variable", "lower limit variable", "upper limit variable", "independent variable"], correct: 0 },
+        { id: 36, section: "Mathematics", text: "What is the sum of the sequence: 1, 10, 100, 1000,... 1,000,000,000 ?", options: ["99,999,999,11", "11,111,111,90", "11,111,111,11", "99,999,999,99"], correct: 2 },
+        { id: 37, section: "Mathematics", text: "If calculated value of total sum of squares in sample variance is larger than variation in data set is considered as:", options: ["smaller", "greater", "zero", "negative"], correct: 1 },
+        { id: 38, section: "Mathematics", text: "If a right angle triangle ABC has 13 as opposite side and hypotenuse is supposed as 'x' then \\(A = 47^{\\circ}\\). Find x.", options: ["15.77", "17.77", "19.77", "21.77"], correct: 1 },
+        { id: 39, section: "Mathematics", text: "Let n(A) denotes the number of elements in set A. If \\(n(A)=p\\) and \\(n(B) = q\\), then how many ordered pairs (a, b) are there with \\(a \\in A\\) and \\(b \\in B\\)?", options: ["pq", "p+q", "2pq", "4pq"], correct: 0 },
+        { id: 40, section: "Mathematics", text: "\\((A \\cup B) \\cup C = ?\\)", options: ["\\(A \\cap (B \\cup C)\\)", "\\(A \\cup (B \\cup C)\\)", "\\(A \\cup (B \\cap C)\\)", "Empty"], correct: 1 },
+        { id: 41, section: "Mathematics", text: "\\(|z_{1}-z_{2}|\\)", options: ["\\(> |z_1| + |z_2|\\)", "\\(\\ge | |z_1| - |z_2| |\\)", "\\(= z_1 + z_2\\)", "None"], correct: 1 },
+        { id: 42, section: "Mathematics", text: "Two matrices A and B are equal if:", options: ["both are rectangular", "both have same order", "no of columns of A is equal to columns of B", "both have same order and equal corresponding elements"], correct: 3 },
+        { id: 43, section: "Mathematics", text: "A root of the equation, \\(\\sin x + x - 1 = 0\\), lies in the interval:", options: ["\\((0, \\pi/2)\\)", "\\((-\\pi/2, 0)\\)", "\\((\\pi/2, \\pi)\\)", "\\((-\\pi, -\\pi/2)\\)"], correct: 0 },
+        { id: 44, section: "Mathematics", text: "If \\((\\lambda^{2}+\\lambda-2)x^{2}+(\\lambda+2)x<1, x\\in R\\), then \\(\\lambda\\) belongs to the interval:", options: ["(-2, 1)", "(-2, 2/5)", "(2/5, 1)", "None"], correct: 1 },
+        { id: 45, section: "Mathematics", text: "In a group of 6 boys and 4 girls, four children are to be selected. In how many different ways can they be selected such that at least one boy should be there?", options: ["159", "209", "201", "212"], correct: 1 },
+        { id: 46, section: "Mathematics", text: "In how many different ways can the letters of the word 'OPTICAL' be arranged so that the vowels always come together?", options: ["610", "720", "825", "920"], correct: 1 },
+        { id: 47, section: "Mathematics", text: "How many 3-letter words with or without meaning, can be formed out of the letters of the word, 'LOGARITHMS', if repetition of letters is not allowed?", options: ["720", "420", "None of these", "5040"], correct: 0 },
+        { id: 48, section: "Mathematics", text: "A polygon with 7 sides can be triangulated into:", options: ["7", "14", "5", "10"], correct: 2 },
+        { id: 49, section: "Mathematics", text: "Sequence: 1, 8, 4, 27, 9, ?", options: ["8", "9", "64", "16"], correct: 2 },
+        { id: 50, section: "Mathematics", text: "After striking the floor, a rubber ball rebounds to 4/5 of the height from which it has fallen. Find the total distance that it travels before coming to rest if it has been gently dropped from a height of 120 metres.", options: ["540 m", "960 m", "1080 m", "1020 m"], correct: 2 },
+
+        // --- PHYSICS (Q51-Q100) ---
+        { id: 51, section: "Physics", text: "If the reflected image formed is magnified and virtual, then the mirror system is:", options: ["Concave", "Convex", "Plane", "Convex or Plane"], correct: 0 },
+        { id: 52, section: "Physics", text: "What type of material is obtained when an intrinsic semiconductor is doped with trivalent impurity?", options: ["Extrinsic semiconductor", "Insulator", "N-type semiconductor", "P-type semiconductor"], correct: 3 },
+        { id: 53, section: "Physics", text: "Nucleons are collection of:", options: ["electrons and protons", "electrons and neutrons", "protons and neutrons", "protons and positrons"], correct: 2 },
+        { id: 54, section: "Physics", text: "If \\(\\lambda_v, \\lambda_x, \\lambda_m\\) represents the wavelengths of visible light, X-rays and microwaves respectively, then:", options: ["\\(\\lambda_m > \\lambda_v > \\lambda_x\\)", "\\(\\lambda_m > \\lambda_x > \\lambda_v\\)", "\\(\\lambda_v > \\lambda_x > \\lambda_m\\)", "\\(\\lambda_v > \\lambda_m > \\lambda_x\\)"], correct: 0 },
+        { id: 55, section: "Physics", text: "The image formed by a concave lens is:", options: ["always real and enlarged", "always real and diminished", "always virtual and enlarged", "always virtual and diminished"], correct: 3 },
+        { id: 56, section: "Physics", text: "The permeability and permittivity of air or free space is unity. State true/false.", options: ["True", "False"], correct: 1 },
+        { id: 57, section: "Physics", text: "The force between two charges is 120 N. If the distance between the charges is doubled, the force will be:", options: ["60 N", "30 N", "40 N", "15 N"], correct: 1 },
+        { id: 58, section: "Physics", text: "If three 15 uF capacitors are connected in series, the net capacitance is:", options: ["5 uF", "30 uF", "45 uF", "50 uF"], correct: 0 },
+        { id: 59, section: "Physics", text: "Energy which is released when 1 mole of ionic crystal is formed is known as:", options: ["lattice energy", "heat energy", "molar energy", "kinetic energy"], correct: 0 },
+        { id: 60, section: "Physics", text: "For an ac series circuit, the resonant frequency is given by, \\(f=1/2\\pi L^a C^b\\). The values of a and b will be:", options: ["2, 2", "1/2, 1/2", "-1/2, -1/2", "1, 1"], correct: 2 },
+        { id: 61, section: "Physics", text: "When a net force act on a body, it produces acceleration in body in direction of net force which is directly proportional to net force acting on body and inversely proportional to its mass. This statement is called:", options: ["Newton's 2nd law of motion", "Newton's 1st law of motion", "Newton's 3rd law of motion", "Law of momentum"], correct: 0 },
+        { id: 62, section: "Physics", text: "The focal length of a lens whose power is -1.5 D is:", options: ["-1.5 m", "+1.5 m", "+66.66 cm", "-66.66 cm"], correct: 3 },
+        { id: 63, section: "Physics", text: "What kind of image is formed by a concave lens irrespective of the position of the object?", options: ["virtual, upright and diminished", "real, upright and diminished", "virtual, upright and magnified", "real, inverted and magnified"], correct: 0 },
+        { id: 64, section: "Physics", text: "The current gain of a transistor in common base mode is 0.995. The current gain of the same transistor in common emitter mode is:", options: ["197", "201", "198", "199"], correct: 3 },
+        { id: 65, section: "Physics", text: "What is the SI unit of electrical conductance?", options: ["Volt", "Watt", "Siemens", "Ampere"], correct: 2 },
+        { id: 66, section: "Physics", text: "The n-region has a greater concentration of ____ as compared to the p-region in a P-N junction diode.", options: ["holes", "electrons", "both holes & electrons", "phonons"], correct: 1 },
+        { id: 67, section: "Physics", text: "On a rainy day, small oily films on water show brilliant colours. This is due to:", options: ["scattering", "interference", "polarisation", "none of these"], correct: 1 },
+        { id: 68, section: "Physics", text: "In an npn power transistor, the collector current is 20 mA. If 98% of the electrons injected in to the base region reach the collector, the base current in mA is nearly:", options: ["2 mA", "1 mA", "0.5 mA", "0.4 mA"], correct: 3 },
+        { id: 69, section: "Physics", text: "In SHM of a simple pendulum, component of weight which is directed towards mean position is:", options: ["mg cos(theta)", "mg sin(theta)", "0", "mg tan(theta)"], correct: 1 },
+        { id: 70, section: "Physics", text: "Which of these electromagnetic waves has the shortest wavelength?", options: ["radio waves", "infrared waves", "X rays", "ultraviolet waves"], correct: 2 },
+        { id: 71, section: "Physics", text: "What is the power of the lens, if the far point of a short-sighted eye is 200 cm?", options: ["-0.5 D", "2 D", "1 D", "-1.5 D"], correct: 0 },
+        { id: 72, section: "Physics", text: "The centripetal acceleration of a particle in uniform motion is ____ to the radius of its path.", options: ["directly proportional", "inversely proportional", "equal", "not related"], correct: 1 },
+        { id: 73, section: "Physics", text: "The unit of conductivity is:", options: ["mho/meter", "mho/sq.m", "ohm/meter", "ohm/sq.m"], correct: 0 },
+        { id: 74, section: "Physics", text: "The property of a fluid which enables it to resist tensile stress is known as?", options: ["compressibility", "surface tension", "cohesion", "adhesion"], correct: 1 },
+        { id: 75, section: "Physics", text: "Which one is a scalar quantity?", options: ["Acceleration", "Speed", "Displacement", "Velocity"], correct: 1 },
+        { id: 76, section: "Physics", text: "Which is NOT a fundamental physical quantity of mechanics?", options: ["Length", "Mass", "Volume", "Time"], correct: 2 },
+        { id: 77, section: "Physics", text: "The coefficient of restitution always applies:", options: ["to only one of the colliding objects", "to neither", "to the bigger object", "jointly to the colliding objects"], correct: 3 },
+        { id: 78, section: "Physics", text: "Materials generally become warmer when light is:", options: ["absorbed by them", "reflected by them", "transmitted by them", "all of these"], correct: 0 },
+        { id: 79, section: "Physics", text: "The earth's magnetic field at a certain place has a horizontal component 0.3 G and the total strength 0.5 G. The angle of dip is:", options: ["tan^-1(4/3)", "sin^-1(4/5)", "sin^-1(3/5)", "cos^-1(3/5)"], correct: 3 },
+        { id: 80, section: "Physics", text: "Gravitation occurs between all objects in the universe by virtue of their:", options: ["mass", "density", "weight", "volume"], correct: 0 },
+        { id: 81, section: "Physics", text: "The capacitor doesn't allow sudden changes in:", options: ["Voltage", "Current", "Resistance", "Capacitance"], correct: 0 },
+        { id: 82, section: "Physics", text: "IDSS can be defined as:", options: ["min drain current", "max current with VGS -4V", "max possible current with VGS 0V", "max drain current with source shorted"], correct: 2 },
+        { id: 83, section: "Physics", text: "Which is beta's current ratio?", options: ["IC/IB", "IC/IE", "IC/IE", "IE/IB"], correct: 0 },
+        { id: 84, section: "Physics", text: "Why is tungsten used exclusively for the filament of an incandescent lamp?", options: ["Can be drawn into thin wires", "High resistivity", "Melting point is very high", "All of these"], correct: 3 },
+        { id: 85, section: "Physics", text: "In the case of a concave mirror, the image of an object is:", options: ["Real, erect and diminished (beyond C)", "Real, inverted and same size (between C and F)", "Real, inverted and diminished (beyond C)", "Not real"], correct: 2 },
+        { id: 86, section: "Physics", text: "A periscope works on the principal of:", options: ["refraction", "total internal reflection", "diffraction", "reflection"], correct: 3 },
+        { id: 87, section: "Physics", text: "What is the power of concave lens?", options: ["Positive", "Negative", "Both", "None"], correct: 1 },
+        { id: 88, section: "Physics", text: "A stone is whirled in a vertical circle. When the stone is at the highest position the tension in the string is:", options: ["maximum", "zero", "equal to weight", "minimum"], correct: 3 },
+        { id: 89, section: "Physics", text: "Which zone of a candle flame is the hottest?", options: ["Dark innermost", "Outermost", "Middle luminous", "Central"], correct: 1 },
+        { id: 90, section: "Physics", text: "Dimensions of coefficient of viscosity is:", options: ["M^2 L^2 T^3", "M L^-1 T^-1", "M L T^-1", "M L T^3"], correct: 1 },
+        { id: 91, section: "Physics", text: "A full adder logic circuit will have:", options: ["Two inputs one output", "Three inputs three outputs", "Two inputs two outputs", "Three inputs and two outputs"], correct: 3 },
+        { id: 92, section: "Physics", text: "In physics, a radian per second is a unit of:", options: ["angular displacement", "angular velocity", "angular acceleration", "angular momentum"], correct: 1 },
+        { id: 93, section: "Physics", text: "A cyclist moves along a circular path of radius 70m. If he completes one round in 11s, calculate total length of path.", options: ["40m", "440m", "0m", "11m"], correct: 1 },
+        { id: 94, section: "Physics", text: "Mass of a body (m) into acceleration (a) is equal to:", options: ["inertia", "displacement", "momentum", "force"], correct: 3 },
+        { id: 95, section: "Physics", text: "Ions of ionic crystals become free when it is in:", options: ["solid state", "compound state", "molten state", "none of these"], correct: 2 },
+        { id: 96, section: "Physics", text: "To and fro oscillatory motion in which acceleration is proportional to displacement and directed towards mean position is:", options: ["compressional motion", "damped motion", "simple harmonic motion", "none"], correct: 2 },
+        { id: 97, section: "Physics", text: "The units of capacitance are:", options: ["volts/coulomb", "coulombs/volt", "ohms", "henry/Wb"], correct: 1 },
+        { id: 98, section: "Physics", text: "The ability of charged bodies to exert force on one another is attributed to the existence of:", options: ["electrons", "protons", "neutrons", "electric field"], correct: 3 },
+        { id: 99, section: "Physics", text: "Which of the following relation will hold well?", options: ["D=mu H", "B=epsilon E", "E=epsilon D", "B=mu H"], correct: 3 },
+        { id: 100, section: "Physics", text: "Momentum is the product of?", options: ["mass and time", "velocity and mass", "force and time", "force and mass"], correct: 1 },
+
+        // --- CHEMISTRY (Q101-Q120) ---
+        { id: 101, section: "Chemistry", text: "Air contains maximum amount of:", options: ["oxygen", "nitrogen", "hydrogen", "carbon dioxide"], correct: 1 },
+        { id: 102, section: "Chemistry", text: "What is the chemical name of table salt?", options: ["Sodium nitrate", "Ammonium chloride", "Sodium chloride", "Calcium chloride"], correct: 2 },
+        { id: 103, section: "Chemistry", text: "Permanent hardness of water is due to the presence of?", options: ["Magnesium bicarbonate", "Calcium bicarbonate", "Sodium bicarbonate", "Calcium sulphate"], correct: 3 },
+        { id: 104, section: "Chemistry", text: "The cyclotron is used to:", options: ["accelerating particles", "separating elements", "purifying metals", "making alloys"], correct: 0 },
+        { id: 105, section: "Chemistry", text: "Natural rubber is a polymer derived from?", options: ["ethylene", "propylene", "isoprene", "butadiene"], correct: 2 },
+        { id: 106, section: "Chemistry", text: "Graphite, Carbon and Diamonds are?", options: ["Isotopes", "Isomers", "Isotones", "Allotropes"], correct: 3 },
+        { id: 107, section: "Chemistry", text: "Which among the following acids is abundant in Grapes, Bananas and Tamarind?", options: ["Lactic Acid", "Oxalic Acid", "Salicylic Acid", "Tartaric Acid"], correct: 3 },
+        { id: 108, section: "Chemistry", text: "What is the common name of Calcium Sulphate?", options: ["Bleaching powder", "Slaked lime", "Plaster of paris", "Detergent"], correct: 2 },
+        { id: 109, section: "Chemistry", text: "Which of the following metals has the lowest melting point?", options: ["Copper", "Lead", "Iron", "Steel"], correct: 1 },
+        { id: 110, section: "Chemistry", text: "The number of electrons presents in \\(H^+\\) is:", options: ["zero", "one", "two", "three"], correct: 0 },
+        { id: 111, section: "Chemistry", text: "The number of d-electrons in \\(Fe^{2+} (Z=26)\\) is not equal to that of:", options: ["p-electrons in Ne", "s-electrons in Mg", "d-electrons in Fe", "p-electrons in Cl"], correct: 3 },
+        { id: 112, section: "Chemistry", text: "Which of the following elements behave chemically both as a metal and a non metal?", options: ["Boron", "Carbon", "Argon", "Mercury"], correct: 0 },
+        { id: 113, section: "Chemistry", text: "Which one of the following is the softest?", options: ["sodium", "iron", "aluminium", "lithium"], correct: 0 },
+        { id: 114, section: "Chemistry", text: "For which one of the following is the density maximum?", options: ["Ice", "Water", "Benzene", "Chloroform"], correct: 1 },
+        { id: 115, section: "Chemistry", text: "Lysergic acid diethylamide (LSD) is a drug used as a:", options: ["Steroid", "Sedative", "Analgesic", "Hallucinogen"], correct: 3 },
+        { id: 116, section: "Chemistry", text: "When a piece of quicklime is dipped in water, it gives bubbles. This bubbling is due to which of the following?", options: ["Oxygen", "Carbon Dioxide", "Water Vapour", "Hydrogen"], correct: 2 },
+        { id: 117, section: "Chemistry", text: "Bleaching action of chlorine is by:", options: ["decomposition", "hydrolysis", "reduction", "oxidation"], correct: 3 },
+        { id: 118, section: "Chemistry", text: "The concept of an electrolyte in water was described by:", options: ["Faraday", "Ohm", "Debye", "No Explanation"], correct: 0 },
+        { id: 119, section: "Chemistry", text: "Water at 4 degree centigrade has?", options: ["minimum density", "maximum density", "No density", "None of the above"], correct: 1 },
+        { id: 120, section: "Chemistry", text: "Identify the thermosetting plastic from the given options.", options: ["Polythene", "Bakelite", "PVC", "Casseine"], correct: 1 },
+
+        // --- ENGLISH (Q121-Q160) ---
+        { id: 121, section: "English", text: "Passage: Economists have long recognized a persistent and unfounded belief... known as the anti-foreign bias.<br>The passage is primarily concerned with which of the following?", options: ["Arguing for an increase in trade with foreign nations", "Providing a historical context for a long-standing belief", "Demonstrating the fallacy of a particular way of thinking", "Illustrating an economic principle through an example"], correct: 2 },
+        { id: 122, section: "English", text: "The author most likely mentions the 'baker' and the 'cobbler' in order to:", options: ["provide a concrete illustration of an economic principle", "discuss the types of goods available during Adam Smith's time", "evaluate an example used in Smith's Wealth of Nations", "show that all trade is based on specialization"], correct: 1 },
+        { id: 123, section: "English", text: "The author most probably uses the word 'startling' in reference to the Law of Comparative Advantage because:", options: ["it is puzzling that no one before Adam Smith thought of the Law", "the Law of Comparative Advantage holds even when there is an imbalance", "it is surprising that the general public is unaware of the Law", "most countries do not consider the Law when devising policies"], correct: 3 },
+        { id: 124, section: "English", text: "As it is described in the passage, which of the following most closely resembles 'folk wisdom'?", options: ["A farmer decides it will rain after scanning clouds", "A child asks why sky is blue", "A person spends 10 dollars on lottery tickets", "A mother tells child to put on jacket to avoid cold"], correct: 2 },
+        { id: 125, section: "English", text: "Direct/Indirect: 'If you don't keep quiet I shall shoot you', he said to her in a calm voice.", options: ["He warned her to shoot if she didn't keep quiet calmly.", "He said calmly that I shall shoot you if you don't be quiet.", "He warned her calmly that he would shoot her if she didn't keep quiet.", "Calmly he warned her that be quiet or else he will have to shoot her."], correct: 2 },
+        { id: 126, section: "English", text: "Direct/Indirect: I told him that he was not working hard.", options: ["I said to him, 'You are not working hard.'", "I told to him, 'You are not working hard.'", "I said, 'You are not working hard.'", "I said to him, 'He is not working hard.'"], correct: 0 },
+        { id: 127, section: "English", text: "Direct/Indirect: His father ordered him to go to his room and study.", options: ["His father said, 'Go to your room and study.'", "His father said to him, 'Go and study in your room.'", "His father shouted, 'Go right now to your study room'", "His father said firmly, 'Go and study in your room.'"], correct: 0 },
+        { id: 128, section: "English", text: "Direct/Indirect: He said to his father, 'Please increase my pocket-money.'", options: ["He told his father, 'Please increase the pocket-money'", "He pleaded his father to please increase my pocket money.", "He requested his father to increase his pocket-money.", "He asked his father to increase his pocket-money."], correct: 2 },
+        { id: 129, section: "English", text: "Direct/Indirect: She said that her brother was getting married.", options: ["She said, 'Her brother is getting married.'", "She told, 'Her brother is getting married.'", "She said, 'My brother is getting married.'", "She said, 'My brother was getting married.'"], correct: 2 },
+        { id: 130, section: "English", text: "The statue ____ a global symbol of freedom", options: ["stands against", "stands to", "stands for", "stands as"], correct: 3 },
+        { id: 131, section: "English", text: "Is not learning superior ____ wealth?", options: ["than", "from", "by", "to"], correct: 3 },
+        { id: 132, section: "English", text: "A group of agitators ____ the mob to break down the Vice-Chancellors door.", options: ["wished", "excited", "threatened", "incited"], correct: 3 },
+        { id: 133, section: "English", text: "Turn the lights ____ before you go to bed.", options: ["on", "off", "out", "down"], correct: 1 },
+        { id: 134, section: "English", text: "There is no ____ evidence to support your assertion.", options: ["facile", "fictitious", "facetious", "factual"], correct: 3 },
+        { id: 135, section: "English", text: "Voice Change: Please keep quiet.", options: ["You are told for keep quiet.", "You are requested to keep quiet.", "You are requested for keep quiet.", "You are told to keep quiet."], correct: 1 },
+        { id: 136, section: "English", text: "Voice Change: She wants that she should be respected.", options: ["She wanted to respected.", "She wants to respected.", "She wanted to be respected.", "She wants to be respected."], correct: 3 },
+        { id: 137, section: "English", text: "Voice Change: He found the student guilty.", options: ["The student was found to be guilty by him.", "The student was found guilty by him.", "The student was found to guilty by him.", "The student found to be guilty by him."], correct: 0 },
+        { id: 138, section: "English", text: "Voice Change: Darjeeling grows tea.", options: ["Tea is grown in Darjeeling.", "Tea grows in Darjeeling.", "Tea is being grown in Darjeeling.", "Let the tea be grown in Darjeeling."], correct: 0 },
+        { id: 139, section: "English", text: "Voice Change: After driving Professor Jones to the museum she dropped him at his hotel.", options: ["After she was driven Professor Jones...", "After she had driven Professor Jones...", "After being driven to the museum, Professor Jones was dropped at his hotel.", "Professor Jones was being driven dropped..."], correct: 2 },
+        { id: 140, section: "English", text: "Ducks: Quack :: Cow: ?", options: ["Moo", "Hoot", "Sing", "Grunt"], correct: 0 },
+        { id: 141, section: "English", text: "Bowl: Soup :: Plate: ?", options: ["Spoon", "Coffee", "Rice", "Dish"], correct: 2 },
+        { id: 142, section: "English", text: "2 : 8 :: 4 : ?", options: ["16", "64", "128", "20"], correct: 1 },
+        { id: 143, section: "English", text: "Vacant : Occupied :: Weak : ?", options: ["Feeble", "Paramount", "Sturdy", "None of the above"], correct: 2 },
+        { id: 144, section: "English", text: "Flower : Vase :: Pencil : ?", options: ["Pen", "Compass Box", "Desk", "All of the above"], correct: 1 },
+        { id: 145, section: "English", text: "Antonym of DUCTILE is?", options: ["Docile", "Pliable", "Stiff", "Supple"], correct: 2 },
+        { id: 146, section: "English", text: "Antonym of Abundant?", options: ["Short", "Meagre", "Limited", "Petty"], correct: 1 },
+        { id: 147, section: "English", text: "Antonym for absurd?", options: ["scarcity", "Rational", "Florish", "Reasonable"], correct: 3 },
+        { id: 148, section: "English", text: "Antonym of EXPAND is?", options: ["Congest", "Conclude", "Convert", "Condense"], correct: 3 },
+        { id: 149, section: "English", text: "Antonym of ARTIFICIAL is?", options: ["Red", "Solid", "Truthful", "Natural"], correct: 3 },
+        { id: 150, section: "English", text: "Antonym of ENORMOUS is?", options: ["Fragile", "Weak", "Tiny", "Soft"], correct: 2 },
+        { id: 151, section: "English", text: "Antonym of RECONDITE is?", options: ["Hermetic", "Manifest", "Pedantic", "Occult"], correct: 1 },
+        { id: 152, section: "English", text: "Synonym: PROPITIOUS", options: ["Favorable", "Clean", "Nearby", "Patriotic"], correct: 0 },
+        { id: 153, section: "English", text: "Synonym: RECTITUDE", options: ["Duplication", "Integrity", "Rectification", "Recovery"], correct: 1 },
+        { id: 154, section: "English", text: "Synonym: INCONGRUOUS", options: ["Inconceivable", "Inevitable", "Inconsistent", "Incontrovertible"], correct: 2 },
+        { id: 155, section: "English", text: "Synonym: SLIPSHOD", options: ["Vulgar", "Careless", "Common place", "Retaliatory"], correct: 1 },
+        { id: 156, section: "English", text: "Synonym: MASQUERADE", options: ["to provide support", "to be in disguise", "to mesmerize", "marathon race"], correct: 1 },
+        { id: 157, section: "English", text: "One word: Agnostic", options: ["One who is not sure about God's existence", "One who believes in God's existence", "One having different style of living", "None of above"], correct: 0 },
+        { id: 158, section: "English", text: "One word: Altruist", options: ["One who is lover of beauty", "One who never stops", "A lover of mankind", "A person who hates mankind"], correct: 2 },
+        { id: 159, section: "English", text: "One word: Amateur", options: ["One who is not having experience", "One who does a thing for pleasure and not as a profession", "One who have all happiness", "One who remains sad"], correct: 1 },
+        { id: 160, section: "English", text: "One word: Anarchist", options: ["Religious person", "Person against a particular religion", "Person who always suspects", "One who is out to destroy all governments"], correct: 3 },
+
+        // --- APTITUDE (Q161-Q200) ---
+        { id: 161, section: "Aptitude", text: "Which word does NOT belong with the others?", options: ["inch", "ounce", "centimeter", "yard"], correct: 1 },
+        { id: 162, section: "Aptitude", text: "In a lottery, there are 10 prizes and 25 blanks. What is the probability of getting a prize?", options: ["1/10", "2/5", "2/7", "5/7"], correct: 2 },
+        { id: 163, section: "Aptitude", text: "In how many different ways can the letters of the word 'OPTICAL' be arranged so that the vowels always come together?", options: ["120", "720", "4320", "2160"], correct: 1 },
+        { id: 164, section: "Aptitude", text: "A car traveling with 5/7 of its actual speed covers 42 km in 1 hr 40 min 48 sec. Find the actual speed.", options: ["17 6/7 km/hr", "25 km/hr", "30 km/hr", "35 km/hr"], correct: 3 },
+        { id: 165, section: "Aptitude", text: "In how many ways can a group of 5 men and 2 women be made out of a total of 7 men and 3 women?", options: ["63", "90", "126", "45"], correct: 0 },
+        { id: 166, section: "Aptitude", text: "Select a figure from amongst the Answer Figures which will continue the same series. (Visual Series Q)", options: ["1", "2", "3", "4"], correct: 0 },
+        { id: 167, section: "Aptitude", text: "Pointing to a girl in photograph. Amar said, 'Her mother's brother is the only son of my mother's father.' How the girl's mother related to Amar?", options: ["Mother", "Sister", "Aunt", "Grandmother"], correct: 2 },
+        { id: 168, section: "Aptitude", text: "Select a figure from Answer Figures which will continue the same series. (Visual Series Q2)", options: ["1", "2", "3", "4", "5"], correct: 4 },
+        { id: 169, section: "Aptitude", text: "The value of 25.25 - 23.23 + 24.24 is", options: ["26", "26.26", "2.2", "-22.22"], correct: 1 },
+        { id: 170, section: "Aptitude", text: "Find value of \\((a^{2}+2a+b^{2})/(a^{3}-2a^{2})\\), if \\(a+(b^{2}/a)=2\\)?", options: ["4/b^2", "(2a^2)/b^2", "-2a^2b^2", "4/(-b^2)"], correct: 1 },
+        { id: 171, section: "Aptitude", text: "Sam borrowed money at SI 6%. Returned Rs 15600. Borrowed 12000. Time?", options: ["8 years", "2.5 years", "5 years", "3.5 years"], correct: 2 },
+        { id: 172, section: "Aptitude", text: "An amount becomes 7 times in 15 years. In how many years will it become 10 times?", options: ["20 years", "18.75 years", "22.50 years", "21.50 years"], correct: 2 },
+        { id: 173, section: "Aptitude", text: "Pipes M(22.5) and N(15) fill tank. Both opened. Close N after how much time so tank full in 18 mins?", options: ["4 minutes", "3 minutes", "4.5 minutes", "2.5 minutes"], correct: 1 },
+        { id: 174, section: "Aptitude", text: "What will be selling price, if cost price is Rs. 120 and gain is 35%?", options: ["Rs. 135", "Rs. 85", "Rs. 155", "Rs. 162"], correct: 3 },
+        { id: 175, section: "Aptitude", text: "If Harsh sold a match ticket for Rs.340 at a profit of 25%, at what price did he purchase the ticket?", options: ["280", "255", "300", "272"], correct: 3 },
+        { id: 176, section: "Aptitude", text: "Chaman mixes two cans of wine/water. Can1 (5:3), Can2 (2:3). Result (1:1). Ratio of mix?", options: ["5:3", "4:5", "5:4", "2:5"], correct: 1 },
+        { id: 177, section: "Aptitude", text: "One glass juice:water 5:2, other 7:4. Mixed. Final ratio water:juice?", options: ["8:35", "52:25", "35:8", "25:52"], correct: 3 },
+        { id: 178, section: "Aptitude", text: "Ages in proportion 4:7:9. Eight years ago sum was 76. Present ages?", options: ["8, 20, 28", "12, 21, 27", "20, 35, 45", "None of these"], correct: 2 },
+        { id: 179, section: "Aptitude", text: "What is probability of drawing two clubs from a well shuffled pack of 52 cards?", options: ["13/51", "1/17", "1/26", "13/17"], correct: 1 },
+        { id: 180, section: "Aptitude", text: "9 teams in Cricket League. First round every team plays every other. How many matches?", options: ["36", "72", "9!", "9!-1"], correct: 0 },
+        { id: 181, section: "Aptitude", text: "At what time between 7 o'clock and 8 o'clock, will the hands of a clock be together?", options: ["33(5/12) min past 7", "38(2/11) min past 7", "35(7/11) min past 8", "32(1/11) min before 8"], correct: 1 },
+        { id: 182, section: "Aptitude", text: "Pick the odd one out (Letters)", options: ["B", "D", "E", "F"], correct: 2 },
+        { id: 183, section: "Aptitude", text: "Pick the odd one out (Numbers)", options: ["4", "16", "36", "8"], correct: 3 },
+        { id: 184, section: "Aptitude", text: "Pick the odd one out (Words)", options: ["Volleyball", "Football", "Baseball", "Chess"], correct: 3 },
+        { id: 185, section: "Aptitude", text: "Pointing to a lady, a girl said, 'She is the daughter-in-law of the grandmother of my father's only son.' Relation?", options: ["Sister-in-Law", "Mother", "Aunt", "Can't be determined"], correct: 3 },
+        { id: 186, section: "Aptitude", text: "Arrange as per dictionary & find the last word: Lean, Leave, Less, Leaf.", options: ["Lean", "Leave", "Less", "Leaf"], correct: 2 },
+        { id: 187, section: "Aptitude", text: "At what time between 5.30 and 6 will hands be at right angles?", options: ["43 5/11 min past 5", "43 7/11 min past 5", "40 3/11 min past 5", "45 min past 5"], correct: 1 },
+        { id: 188, section: "Aptitude", text: "Robert reaches at 2PM if 10kmph, 12PM if 15kmph. Speed to reach 1PM?", options: ["8 kmph", "11 kmph", "12 kmph", "14 kmph"], correct: 2 },
+        { id: 189, section: "Aptitude", text: "Pride is to lion as shoal is to", options: ["teacher", "student", "self-respect", "fish"], correct: 3 },
+        { id: 190, section: "Aptitude", text: "Arrange in dictionary order: 1. Launch 2. Laugh 3. Lattice 4. Latent 5. Latitude", options: ["4,5,3,2,1", "4,3,5,1,2", "4,5,1,2,3", "4,5,1,3,2"], correct: 0 },
+        { id: 191, section: "Aptitude", text: "Find odd one out. 10, 25, 45, 54, 60, 75, 80.", options: ["10", "45", "54", "75"], correct: 2 },
+        { id: 192, section: "Aptitude", text: "The ratio 5:20 expressed as percent equals to", options: ["50%", "125%", "25%", "None of above"], correct: 2 },
+        { id: 193, section: "Aptitude", text: "If COOL is coded as DQRP, then write the code for HOT.", options: ["JQW", "IQW", "IQX", "IPW"], correct: 1 },
+        { id: 194, section: "Aptitude", text: "Series: 5, 9, 17, 29, 45, ... ?", options: ["58", "64", "65", "80"], correct: 2 },
+        { id: 195, section: "Aptitude", text: "How many liters of pure acid are there in 8 litres of a 20% solution", options: ["1.5", "1.6", "1.7", "1.8"], correct: 1 },
+        { id: 196, section: "Aptitude", text: "Choose the word which is different from the rest.", options: ["Hangar", "Platform", "Dock", "Park"], correct: 3 },
+        { id: 197, section: "Aptitude", text: "A*B implies \\(A^2 + B^2\\). Value of \\(6 * (2 * 4)\\)?", options: ["999", "3616", "324", "436"], correct: 3 },
+        { id: 198, section: "Aptitude", text: "Evaluate: 0.01 + 0.0064 / 0.01 x 0.3 (Sic)", options: ["1", "10", "100", "1000"], correct: 2 },
+        { id: 199, section: "Aptitude", text: "Find the least number of 5 digits, which is exactly divisible by 89.", options: ["24", "26", "27", "28"], correct: 2 },
+        { id: 200, section: "Aptitude", text: "PEACH is to HCAEP as 46251 is to...", options: ["25641", "26451", "15624", "51462"], correct: 2 }
+    ];
+
+    let currentQuestionIndex = 0;
+    let responses = new Array(questions.length).fill(null);
+    let visited = new Array(questions.length).fill(false);
+    let timeLeft = 3 * 60 * 60; // 3 hours
+
+    const sections = [...new Set(questions.map(q => q.section))];
+
+    function init() {
+        const tabsContainer = document.getElementById('sectionTabs');
+        sections.forEach((sec, idx) => {
+            const btn = document.createElement('button');
+            btn.className = `tab-btn ${idx === 0 ? 'active' : ''}`;
+            btn.innerText = sec;
+            btn.onclick = () => jumpToSection(sec);
+            tabsContainer.appendChild(btn);
+        });
+
+        const paletteContainer = document.getElementById('palette');
+        questions.forEach((q, idx) => {
+            const btn = document.createElement('div');
+            btn.className = 'palette-btn';
+            btn.innerText = idx + 1;
+            btn.onclick = () => loadQuestion(idx);
+            btn.id = `palette-${idx}`;
+            paletteContainer.appendChild(btn);
+        });
+
+        startTimer();
+        loadQuestion(0);
+    }
+
+    function startTimer() {
+        const timerEl = document.getElementById('timer');
+        setInterval(() => {
+            if (timeLeft <= 0) { finishTest(); return; }
+            timeLeft--;
+            const h = Math.floor(timeLeft / 3600);
+            const m = Math.floor((timeLeft % 3600) / 60);
+            const s = timeLeft % 60;
+            timerEl.innerText = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+        }, 1000);
+    }
+
+    function jumpToSection(sectionName) {
+        document.querySelectorAll('.tab-btn').forEach(b => {
+            b.classList.remove('active');
+            if(b.innerText === sectionName) b.classList.add('active');
+        });
+        const idx = questions.findIndex(q => q.section === sectionName);
+        if (idx !== -1) loadQuestion(idx);
+    }
+
+    function loadQuestion(index) {
+        currentQuestionIndex = index;
+        visited[index] = true;
+        updatePalette();
+
+        const q = questions[index];
+        document.getElementById('q-section').innerText = q.section;
+        document.getElementById('q-text').innerHTML = `Q${index+1}. ${q.text}`;
+
+        const optionsContainer = document.getElementById('q-options');
+        optionsContainer.innerHTML = '';
+        q.options.forEach((opt, i) => {
+            const label = document.createElement('label');
+            label.className = 'option-label';
+            const input = document.createElement('input');
+            input.type = 'radio';
+            input.name = 'option';
+            input.value = i;
+            if (responses[index] === i) input.checked = true;
+            input.onchange = () => { responses[currentQuestionIndex] = i; updatePalette(); };
+            label.appendChild(input);
+            label.appendChild(document.createTextNode(opt));
+            optionsContainer.appendChild(label);
+        });
+
+        if (window.MathJax) MathJax.typesetPromise();
+    }
+
+    function saveAndNext() {
+        if (currentQuestionIndex < questions.length - 1) loadQuestion(currentQuestionIndex + 1);
+    }
+
+    function prevQuestion() {
+        if (currentQuestionIndex > 0) loadQuestion(currentQuestionIndex - 1);
+    }
+
+    function clearResponse() {
+        responses[currentQuestionIndex] = null;
+        loadQuestion(currentQuestionIndex);
+    }
+
+    function updatePalette() {
+        questions.forEach((q, idx) => {
+            const btn = document.getElementById(`palette-${idx}`);
+            btn.className = 'palette-btn';
+            if (idx === currentQuestionIndex) btn.classList.add('active');
+            if (responses[idx] !== null) btn.classList.add('answered');
+            else if (visited[idx]) btn.classList.add('visited');
+        });
+    }
+
+    function finishTest() {
+        const modal = document.getElementById('resultModal');
+        const summary = document.getElementById('score-summary');
+        const detailed = document.getElementById('detailed-analysis');
+        let score = 0, correctCount = 0, wrongCount = 0;
+        let tableHTML = '<table><thead><tr><th>Q.No</th><th>Status</th><th>Correct Ans</th><th>Your Ans</th></tr></thead><tbody>';
+
+        questions.forEach((q, idx) => {
+            const userAns = responses[idx];
+            let status = 'Unattempted', color = 'black';
+            if (userAns !== null) {
+                if (userAns === q.correct) { score++; correctCount++; status = 'Correct'; color = 'green'; }
+                else { wrongCount++; status = 'Wrong'; color = 'red'; }
+            }
+            tableHTML += `<tr style="color:${color}"><td>${idx + 1}</td><td>${status}</td><td>${q.options[q.correct]}</td><td>${userAns !== null ? q.options[userAns] : '-'}</td></tr>`;
+        });
+        tableHTML += '</tbody></table>';
+        summary.innerHTML = `<div style="font-size: 1.5rem; margin-bottom: 10px;">Total Score: <strong>${score} / ${questions.length}</strong></div><div>Correct: ${correctCount} | Wrong: ${wrongCount} | Unattempted: ${questions.length - (correctCount + wrongCount)}</div>`;
+        detailed.innerHTML = tableHTML;
+        modal.style.display = 'flex';
+    }
+
+    window.onload = init;
+</script>
+
+</body>
+</html>
