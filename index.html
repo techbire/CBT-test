@@ -3,103 +3,376 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IMU CET Mock Test 1 - Full CBT</title>
+    <title>IMU CET Mock Test 1 - CBT (Mobile Ready)</title>
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <style>
-        :root { --primary: #007bff; --secondary: #6c757d; --success: #28a745; --warning: #ffc107; --danger: #dc3545; --light: #f8f9fa; --dark: #343a40; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f4f6f9; height: 100vh; display: flex; flex-direction: column; }
-        header { background-color: var(--primary); color: white; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; height: 50px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .timer-box { background: rgba(255,255,255,0.2); padding: 5px 15px; border-radius: 4px; font-weight: bold; font-size: 1.2rem; }
-        .container { display: flex; flex: 1; overflow: hidden; }
-        .question-area { flex: 3; padding: 20px; overflow-y: auto; background: white; display: flex; flex-direction: column; }
-        .question-header { display: flex; justify-content: space-between; border-bottom: 1px solid #ddd; padding-bottom: 10px; margin-bottom: 20px; font-weight: bold; color: var(--secondary); }
-        .question-text { font-size: 1.2rem; margin-bottom: 25px; line-height: 1.6; }
-        .options-grid { display: flex; flex-direction: column; gap: 15px; }
-        .option-label { display: flex; align-items: center; padding: 10px 15px; border: 1px solid #ced4da; border-radius: 5px; cursor: pointer; transition: all 0.2s; }
+        :root {
+            --primary: #007bff;
+            --secondary: #6c757d;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --light: #f8f9fa;
+            --dark: #343a40;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f6f9;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 60px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            z-index: 100;
+        }
+
+        .header-title { font-size: 1.2rem; font-weight: bold; }
+        .timer-box {
+            background: rgba(255,255,255,0.2);
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 1rem;
+            white-space: nowrap;
+        }
+
+        .palette-toggle {
+            display: none; /* Hidden on desktop */
+            background: transparent;
+            border: 1px solid white;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+
+        /* Section Tabs */
+        .section-tabs {
+            display: flex;
+            background: #fff;
+            border-bottom: 1px solid #ddd;
+            overflow-x: auto;
+            white-space: nowrap;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none; /* Hide scrollbar Firefox */
+        }
+        .section-tabs::-webkit-scrollbar { display: none; } /* Hide scrollbar Chrome */
+
+        .tab-btn {
+            padding: 12px 20px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-weight: bold;
+            color: var(--secondary);
+            border-bottom: 3px solid transparent;
+            font-size: 0.95rem;
+        }
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        /* Main Container */
+        .container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Question Area */
+        .question-area {
+            flex: 3;
+            padding: 20px;
+            overflow-y: auto;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            padding-bottom: 80px; /* Space for footer */
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            color: var(--secondary);
+            font-size: 0.9rem;
+        }
+
+        .question-text {
+            font-size: 1.15rem;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        /* Options */
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .option-label {
+            display: flex;
+            align-items: flex-start;
+            padding: 12px 15px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #fff;
+        }
+
         .option-label:hover { background-color: var(--light); }
-        .option-label input { margin-right: 15px; transform: scale(1.2); }
-        .sidebar { flex: 1; background-color: #e9ecef; border-left: 1px solid #ced4da; display: flex; flex-direction: column; max-width: 350px; }
-        .user-info { padding: 15px; background: white; border-bottom: 1px solid #ddd; display: flex; align-items: center; gap: 10px; }
-        .legend { padding: 10px; font-size: 0.8rem; display: grid; grid-template-columns: 1fr 1fr; gap: 5px; background: white; border-bottom: 1px solid #ddd; }
-        .legend-item { display: flex; align-items: center; gap: 5px; }
-        .palette-grid { padding: 15px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; overflow-y: auto; flex: 1; }
-        .palette-btn { width: 35px; height: 35px; border: 1px solid #ccc; border-radius: 50%; background: white; cursor: pointer; font-weight: bold; display: flex; justify-content: center; align-items: center; font-size: 0.9rem; }
-        .palette-btn.active { border: 2px solid var(--primary); }
+        .option-label input { margin-right: 15px; margin-top: 5px; transform: scale(1.3); flex-shrink: 0; }
+
+        /* Sidebar (Desktop) */
+        .sidebar {
+            flex: 1;
+            background-color: #f8f9fa;
+            border-left: 1px solid #ced4da;
+            display: flex;
+            flex-direction: column;
+            max-width: 320px;
+            min-width: 280px;
+            z-index: 90;
+        }
+
+        /* Sidebar (Mobile Overlay) */
+        @media (max-width: 768px) {
+            .header-title { font-size: 1rem; }
+            .palette-toggle { display: block; }
+            
+            .sidebar {
+                position: absolute;
+                top: 0;
+                left: 0;
+                height: 100%;
+                width: 85%;
+                max-width: 300px;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease-in-out;
+                box-shadow: 2px 0 10px rgba(0,0,0,0.2);
+            }
+            .sidebar.open { transform: translateX(0); }
+            
+            /* Overlay when sidebar opens */
+            .sidebar-overlay {
+                display: none;
+                position: absolute;
+                top: 0; left: 0; right: 0; bottom: 0;
+                background: rgba(0,0,0,0.5);
+                z-index: 80;
+            }
+            .sidebar-overlay.active { display: block; }
+        }
+
+        .user-info {
+            padding: 15px;
+            background: white;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .legend {
+            padding: 10px;
+            font-size: 0.8rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            background: white;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .legend-item { display: flex; align-items: center; gap: 6px; }
+
+        .palette-grid {
+            padding: 15px;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .palette-btn {
+            width: 40px;
+            height: 40px;
+            border: 1px solid #ccc;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.9rem;
+            margin: auto;
+        }
+
+        .palette-btn.active { border: 2px solid var(--primary); transform: scale(1.1); }
         .palette-btn.answered { background-color: var(--success); color: white; border-color: var(--success); }
         .palette-btn.visited { background-color: var(--danger); color: white; border-color: var(--danger); }
-        .footer { padding: 15px 20px; background: white; border-top: 1px solid #ddd; display: flex; justify-content: space-between; }
-        .btn { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; color: white; transition: opacity 0.2s; }
-        .btn:hover { opacity: 0.9; }
+
+        /* Footer */
+        .footer {
+            padding: 10px 15px;
+            background: white;
+            border-top: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            height: 60px;
+            z-index: 50;
+            box-shadow: 0 -2px 5px rgba(0,0,0,0.05);
+        }
+
+        .btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            color: white;
+            font-size: 0.9rem;
+            min-width: 80px;
+        }
         .btn-primary { background-color: var(--primary); }
         .btn-success { background-color: var(--success); }
-        .btn-warning { background-color: var(--warning); color: black; }
+        .btn-warning { background-color: var(--warning); color: #212529; }
+        .btn-danger { background-color: var(--danger); }
         .btn-secondary { background-color: var(--secondary); }
-        .section-tabs { display: flex; background: #fff; border-bottom: 1px solid #ddd; overflow-x: auto; }
-        .tab-btn { padding: 10px 20px; border: none; background: none; cursor: pointer; font-weight: bold; color: var(--secondary); border-bottom: 3px solid transparent; white-space: nowrap; }
-        .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
-        .modal-content { background: white; padding: 30px; border-radius: 8px; width: 80%; max-width: 600px; max-height: 80vh; overflow-y: auto; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        .modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 0.9rem; }
         th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
         th { background-color: var(--light); }
+        
+        .score-card {
+            background: #f1f3f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .score-card h3 { margin: 5px 0; color: var(--primary); }
+        .stat-row { display: flex; justify-content: space-around; margin-top: 10px; font-size: 0.9rem; }
+
     </style>
 </head>
 <body>
 
 <header>
-    <div style="font-size: 1.4rem;">IMU CET MOCK TEST - 1</div>
+    <div style="display:flex; align-items:center;">
+        <button class="palette-toggle" onclick="toggleSidebar()">☰</button>
+        <div class="header-title">IMU CET MOCK 1</div>
+    </div>
     <div class="timer-box" id="timer">03:00:00</div>
 </header>
 
 <div class="section-tabs" id="sectionTabs"></div>
 
 <div class="container">
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+    
     <div class="question-area">
         <div class="question-header">
             <span id="q-section">Mathematics</span>
-            <span id="q-marks">Marks: 1</span>
+            <span id="q-marks" style="color:var(--danger); font-size: 0.8rem;">+1.00 / -0.25</span>
         </div>
         <div class="question-text" id="q-text"></div>
         <div class="options-grid" id="q-options"></div>
     </div>
 
-    <div class="sidebar">
+    <div class="sidebar" id="sidebar">
         <div class="user-info">
-            <div style="width: 40px; height: 40px; background: #ddd; border-radius: 50%;"></div>
-            <div><strong>Candidate</strong><br><span style="font-size:0.8rem; color:green;">Online</span></div>
+            <div style="width: 35px; height: 35px; background: #ccc; border-radius: 50%; display:flex; justify-content:center; align-items:center; font-weight:bold;">U</div>
+            <div style="line-height:1.2;">
+                <div style="font-weight:bold; font-size:0.9rem;">Candidate</div>
+                <span style="font-size:0.75rem; color:green;">● Online</span>
+            </div>
+            <button onclick="toggleSidebar()" style="margin-left:auto; background:none; border:none; font-size:1.5rem; display:none;" class="mobile-close">×</button>
         </div>
         <div class="legend">
             <div class="legend-item"><div class="palette-btn answered" style="width:20px;height:20px;"></div> Answered</div>
             <div class="legend-item"><div class="palette-btn visited" style="width:20px;height:20px;"></div> Visited</div>
-            <div class="legend-item"><div class="palette-btn" style="width:20px;height:20px;"></div> Unvisited</div>
+            <div class="legend-item"><div class="palette-btn" style="width:20px;height:20px;"></div> Not Visited</div>
         </div>
         <div class="palette-grid" id="palette"></div>
-        <div style="padding: 15px; text-align: center;">
+        <div style="padding: 15px; text-align: center; border-top:1px solid #ddd;">
             <button class="btn btn-success" style="width: 100%;" onclick="finishTest()">SUBMIT TEST</button>
         </div>
     </div>
 </div>
 
 <div class="footer">
-    <div>
-        <button class="btn btn-secondary" onclick="prevQuestion()">Previous</button>
-        <button class="btn btn-warning" onclick="clearResponse()">Clear</button>
-    </div>
+    <button class="btn btn-secondary" onclick="prevQuestion()">Previous</button>
+    <button class="btn btn-warning" onclick="clearResponse()">Clear</button>
     <button class="btn btn-primary" onclick="saveAndNext()">Save & Next</button>
 </div>
 
 <div class="modal" id="resultModal">
     <div class="modal-content">
-        <h2>Test Summary</h2>
-        <div id="score-summary"></div>
-        <h3>Detailed Analysis</h3>
+        <h2 style="text-align:center; margin-top:0;">Test Summary</h2>
+        <div id="score-summary" class="score-card"></div>
+        
+        <h3 style="border-bottom:2px solid var(--primary); padding-bottom:5px;">Detailed Analysis</h3>
         <div id="detailed-analysis"></div>
-        <button class="btn btn-primary" onclick="location.reload()" style="margin-top: 20px;">Close</button>
+        
+        <div style="text-align:center; margin-top:20px;">
+            <button class="btn btn-primary" onclick="location.reload()">Close & Reset</button>
+        </div>
     </div>
 </div>
 
 <script>
+    // --- DATA ---
     const questions = [
         // --- MATHEMATICS (Q1-Q50) ---
         { id: 1, section: "Mathematics", text: "The binary relation \\(S = \\emptyset\\) (empty set) on set \\(A=\\{1,2,3\\}\\) is:", options: ["transitive and reflexive", "symmetric and reflexive", "transitive and symmetric", "neither reflexive nor symmetric"], correct: 2 },
@@ -334,13 +607,35 @@
             const btn = document.createElement('div');
             btn.className = 'palette-btn';
             btn.innerText = idx + 1;
-            btn.onclick = () => loadQuestion(idx);
+            btn.onclick = () => { loadQuestion(idx); toggleSidebar(false); }; // Close sidebar on click mobile
             btn.id = `palette-${idx}`;
             paletteContainer.appendChild(btn);
         });
 
         startTimer();
         loadQuestion(0);
+    }
+
+    function toggleSidebar(forceState) {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        const mobileClose = document.querySelector('.mobile-close');
+        
+        if (forceState !== undefined) {
+            if (forceState) {
+                sidebar.classList.add('open');
+                overlay.classList.add('active');
+                mobileClose.style.display = 'block';
+            } else {
+                sidebar.classList.remove('open');
+                overlay.classList.remove('active');
+                mobileClose.style.display = 'none';
+            }
+        } else {
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+            mobileClose.style.display = sidebar.classList.contains('open') ? 'block' : 'none';
+        }
     }
 
     function startTimer() {
@@ -385,7 +680,9 @@
             if (responses[index] === i) input.checked = true;
             input.onchange = () => { responses[currentQuestionIndex] = i; updatePalette(); };
             label.appendChild(input);
-            label.appendChild(document.createTextNode(opt));
+            const span = document.createElement('span');
+            span.innerText = opt;
+            label.appendChild(span);
             optionsContainer.appendChild(label);
         });
 
@@ -416,23 +713,63 @@
     }
 
     function finishTest() {
+        toggleSidebar(false); // Close sidebar if open
         const modal = document.getElementById('resultModal');
         const summary = document.getElementById('score-summary');
         const detailed = document.getElementById('detailed-analysis');
-        let score = 0, correctCount = 0, wrongCount = 0;
-        let tableHTML = '<table><thead><tr><th>Q.No</th><th>Status</th><th>Correct Ans</th><th>Your Ans</th></tr></thead><tbody>';
+        
+        let correctCount = 0;
+        let wrongCount = 0;
+        let unattemptedCount = 0;
+
+        let tableHTML = '<table><thead><tr><th>Q.No</th><th>Result</th><th>Marks</th></tr></thead><tbody>';
 
         questions.forEach((q, idx) => {
             const userAns = responses[idx];
-            let status = 'Unattempted', color = 'black';
+            let status = 'Unattempted';
+            let color = 'gray';
+            let marks = 0;
+
             if (userAns !== null) {
-                if (userAns === q.correct) { score++; correctCount++; status = 'Correct'; color = 'green'; }
-                else { wrongCount++; status = 'Wrong'; color = 'red'; }
+                if (userAns === q.correct) {
+                    correctCount++;
+                    status = 'Correct';
+                    color = 'green';
+                    marks = 1.0;
+                } else {
+                    wrongCount++;
+                    status = 'Wrong';
+                    color = 'red';
+                    marks = -0.25;
+                }
+            } else {
+                unattemptedCount++;
             }
-            tableHTML += `<tr style="color:${color}"><td>${idx + 1}</td><td>${status}</td><td>${q.options[q.correct]}</td><td>${userAns !== null ? q.options[userAns] : '-'}</td></tr>`;
+            
+            tableHTML += `<tr style="color:${color}">
+                <td>${idx + 1}</td>
+                <td>${status}</td>
+                <td>${marks > 0 ? '+' + marks : marks}</td>
+            </tr>`;
         });
         tableHTML += '</tbody></table>';
-        summary.innerHTML = `<div style="font-size: 1.5rem; margin-bottom: 10px;">Total Score: <strong>${score} / ${questions.length}</strong></div><div>Correct: ${correctCount} | Wrong: ${wrongCount} | Unattempted: ${questions.length - (correctCount + wrongCount)}</div>`;
+
+        const totalScore = (correctCount * 1) - (wrongCount * 0.25);
+
+        summary.innerHTML = `
+            <div style="font-size: 2.5rem; color:var(--primary); margin-bottom: 5px;">${totalScore.toFixed(2)}</div>
+            <div style="font-size: 0.9rem; color:#666; margin-bottom:15px;">Total Marks / ${questions.length}</div>
+            
+            <div class="stat-row">
+                <div style="color:green"><strong>${correctCount}</strong><br>Correct</div>
+                <div style="color:red"><strong>${wrongCount}</strong><br>Wrong</div>
+                <div style="color:gray"><strong>${unattemptedCount}</strong><br>Skipped</div>
+            </div>
+            <div style="margin-top:10px; font-size:0.8rem; color: #888;">
+                Positive: +${correctCount} | Negative: -${(wrongCount * 0.25).toFixed(2)}
+            </div>
+        `;
+
         detailed.innerHTML = tableHTML;
         modal.style.display = 'flex';
     }
