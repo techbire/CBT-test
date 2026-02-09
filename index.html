@@ -303,6 +303,49 @@
         }
         .score-card h3 { margin: 5px 0; color: var(--primary); }
         .stat-row { display: flex; justify-content: space-around; margin-top: 10px; font-size: 0.9rem; }
+        
+        .question-review {
+            margin: 15px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background: #f9f9f9;
+        }
+        .question-review.correct { border-left: 4px solid var(--success); background: #e8f5e9; }
+        .question-review.wrong { border-left: 4px solid var(--danger); background: #ffebee; }
+        .question-review.unattempted { border-left: 4px solid var(--secondary); background: #f5f5f5; }
+        
+        .answer-info {
+            margin-top: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        .answer-info .your-answer { color: var(--danger); font-weight: bold; }
+        .answer-info .correct-answer { color: var(--success); font-weight: bold; }
+        
+        .toggle-questions-btn {
+            margin: 15px 0;
+            width: 100%;
+            padding: 12px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+        .toggle-questions-btn:hover { background: #0056b3; }
+        
+        .questions-container {
+            display: none;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 15px;
+        }
+        .questions-container.show { display: block; }
 
     </style>
 </head>
@@ -364,6 +407,9 @@
         
         <h3 style="border-bottom:2px solid var(--primary); padding-bottom:5px;">Detailed Analysis</h3>
         <div id="detailed-analysis"></div>
+        
+        <button class="toggle-questions-btn" onclick="toggleQuestions()">📋 Show Questions & Answers</button>
+        <div id="questions-container" class="questions-container"></div>
         
         <div style="text-align:center; margin-top:20px;">
             <button class="btn btn-primary" onclick="location.reload()">Close & Reset</button>
@@ -717,16 +763,19 @@
         const modal = document.getElementById('resultModal');
         const summary = document.getElementById('score-summary');
         const detailed = document.getElementById('detailed-analysis');
+        const questionsContainer = document.getElementById('questions-container');
         
         let correctCount = 0;
         let wrongCount = 0;
         let unattemptedCount = 0;
 
         let tableHTML = '<table><thead><tr><th>Q.No</th><th>Result</th><th>Marks</th></tr></thead><tbody>';
+        let questionsHTML = '';
 
         questions.forEach((q, idx) => {
             const userAns = responses[idx];
             let status = 'Unattempted';
+            let statusClass = 'unattempted';
             let color = 'gray';
             let marks = 0;
 
@@ -734,11 +783,13 @@
                 if (userAns === q.correct) {
                     correctCount++;
                     status = 'Correct';
+                    statusClass = 'correct';
                     color = 'green';
                     marks = 1.0;
                 } else {
                     wrongCount++;
                     status = 'Wrong';
+                    statusClass = 'wrong';
                     color = 'red';
                     marks = -0.25;
                 }
@@ -751,6 +802,32 @@
                 <td>${status}</td>
                 <td>${marks > 0 ? '+' + marks : marks}</td>
             </tr>`;
+            
+            // Generate question review
+            questionsHTML += `
+                <div class="question-review ${statusClass}">
+                    <div style="font-weight: bold; margin-bottom: 8px;">
+                        Q${idx + 1}. ${q.text}
+                    </div>
+                    <div style="margin-left: 15px;">
+                        ${q.options.map((opt, i) => {
+                            let optStyle = '';
+                            if (i === q.correct) {
+                                optStyle = 'color: green; font-weight: bold;';
+                            } else if (i === userAns && userAns !== q.correct) {
+                                optStyle = 'color: red; font-weight: bold;';
+                            }
+                            return `<div style="${optStyle}">• ${opt}</div>`;
+                        }).join('')}
+                    </div>
+                    <div class="answer-info">
+                        ${userAns !== null ? `<div class="your-answer">Your Answer: ${q.options[userAns]}</div>` : '<div style="color: gray;">Not Attempted</div>'}
+                        <div class="correct-answer">Correct Answer: ${q.options[q.correct]}</div>
+                        ${userAns !== null && userAns !== q.correct ? `<div style="color: var(--danger); margin-top: 5px;">❌ Incorrect</div>` : ''}
+                        ${userAns === q.correct ? `<div style="color: var(--success); margin-top: 5px;">✓ Correct</div>` : ''}
+                    </div>
+                </div>
+            `;
         });
         tableHTML += '</tbody></table>';
 
@@ -771,7 +848,24 @@
         `;
 
         detailed.innerHTML = tableHTML;
+        questionsContainer.innerHTML = questionsHTML;
         modal.style.display = 'flex';
+        
+        // Render MathJax for questions in result
+        if (window.MathJax) MathJax.typesetPromise();
+    }
+    
+    function toggleQuestions() {
+        const container = document.getElementById('questions-container');
+        const btn = document.querySelector('.toggle-questions-btn');
+        
+        if (container.classList.contains('show')) {
+            container.classList.remove('show');
+            btn.innerHTML = '📋 Show Questions & Answers';
+        } else {
+            container.classList.add('show');
+            btn.innerHTML = '📋 Hide Questions & Answers';
+        }
     }
 
     window.onload = init;
